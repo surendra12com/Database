@@ -1,0 +1,64 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import dto.FeedObjects;
+
+public class Project
+{
+public ArrayList<feedobjects> GetFeeds(Connection connection) throws Exception
+{
+ArrayList<feedobjects> feedData = new ArrayList<feedobjects>();
+try
+{
+PreparedStatement ps = connection.prepareStatement("SELECT title,description,url FROM website ORDER BY id DESC");
+ResultSet rs = ps.executeQuery();
+while(rs.next())
+{
+FeedObjects feedObject = new FeedObjects();
+feedObject.setTitle(rs.getString("title"));
+feedObject.setDescription(rs.getString("description"));
+feedObject.setUrl(rs.getString("url"));
+feedData.add(feedObject);
+}
+return feedData;
+}
+catch(Exception e)
+{
+throw e;
+}
+}
+
+}
+
+ProjectManager.java
+Model class write the business logic and data validation.
+package model;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+
+import dao.Database;
+import dao.Project;
+import dto.FeedObjects;
+
+public class ProjectManager {
+
+public ArrayList<feedobjects> GetFeeds()throws Exception {
+ArrayList<feedobjects> feeds = null;
+try {
+Database database= new Database();
+Connection connection = database.Get_Connection();
+Project project= new Project();
+feeds=project.GetFeeds(connection);
+}
+catch (Exception e) {
+throw e;
+}
+return feeds;
+}
+
+}
