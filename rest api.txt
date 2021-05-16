@@ -1,0 +1,120 @@
+public class VehicleCreateDTO {
+
+    private String vehicleIdentityNumber;
+
+    private String make;
+
+    private String model;
+
+    public String getVehicleIdentityNumber() {
+        return vehicleIdentityNumber;
+    }
+
+    public void setVehicleIdentityNumber(String vehicleIdentityNumber) {
+        this.vehicleIdentityNumber = vehicleIdentityNumber;
+    }
+
+    public String getMake() {
+        return make;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    @Override
+    public String toString() {
+        return "VehicleCreateDTO{" +
+                "vehicleIdentityNumber='" + vehicleIdentityNumber + '\'' +
+                ", make='" + make + '\'' +
+                ", model='" + model + '\'' +
+                '}';
+    }
+}
+    //updates
+public class VehicleUpdateDTO {
+
+    private String make;
+
+    private String model;
+
+    public String getMake() {
+        return make;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    @Override
+    public String toString() {
+        return "VehicleUpdateDTO{" +
+                "make='" + make + '\'' +
+                ", model='" + model + '\'' +
+                '}';
+    }
+}
+#this for server layer
+public interface VehicleCommandService {
+
+    public UUID createVehicle(VehicleCreateDTO vehicleCreateDTO);
+    public VehicleQueryDTO updateVehicle(UUID id, VehicleUpdateDTO vehicleUpdateDTO);
+
+}
+Then, we create an implementation for this interface. In the implementation, we will actually implement the two methods declared above.
+
+ 
+@Service
+public class VehicleCommandServiceImpl implements VehicleCommandService {
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    @Override
+    public UUID createVehicle(VehicleCreateDTO vehicleCreateDTO) {
+        Vehicle newVehicle = new Vehicle();
+
+        newVehicle.setId(UUID.randomUUID());
+        newVehicle.setVehicleIdentityNumber(vehicleCreateDTO.getVehicleIdentityNumber());
+        newVehicle.setMake(vehicleCreateDTO.getMake());
+        newVehicle.setModel(vehicleCreateDTO.getModel());
+        newVehicle.setStatus(String.valueOf(Status.FOR_SALE));
+
+        return vehicleRepository.save(newVehicle).getId();
+    }
+
+    @Override
+    public VehicleQueryDTO updateVehicle(UUID id, VehicleUpdateDTO vehicleUpdateDTO) {
+
+        if (vehicleRepository.findById(id).isPresent()){
+            Vehicle existingVehicle = vehicleRepository.findById(id).get();
+
+            existingVehicle.setMake(vehicleUpdateDTO.getMake());
+            existingVehicle.setModel(vehicleUpdateDTO.getModel());
+
+            Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
+
+            return new VehicleQueryDTO(updatedVehicle.getId(), updatedVehicle.getVehicleIdentityNumber(),
+                    updatedVehicle.getMake(), updatedVehicle.getModel());
+        }else{
+            return null;
+        }
+    }
+
+}
